@@ -70,7 +70,7 @@ static bool run_display = true;
 static int cur_x = -1, cur_y = -1;
 static bool cur_press = false;
 static struct kbd keyboard;
-static uint32_t height, normal_height, landscape_height;
+static uint32_t height, normal_height, landscape_height, max_width;
 static uint32_t exclusive_gap = 0;
 static int rounding = DEFAULT_ROUNDING;
 static bool hidden = false;
@@ -568,7 +568,9 @@ redimension_keyboard()
         height = normal_height;
     }
 
-    keyboard.w = available_width;
+    keyboard.w = max_width && available_width > max_width
+        ? max_width
+        : available_width;
     keyboard.h = height;
     keyboard.layout = &keyboard.layouts[layer];
     keyboard.layer_index = 0;
@@ -656,7 +658,7 @@ void
 usage(char *argv0)
 {
     fprintf(stderr,
-            "usage: %s [-hov] [-H height] [-L landscape height] [-fn font] [-l "
+            "usage: %s [-hov] [-H height] [-L landscape height] [-W max width] [-fn font] [-l "
             "layers]\n",
             argv0);
     fprintf(stderr, "Options:\n");
@@ -666,6 +668,7 @@ usage(char *argv0)
             "  -O          - Print intersected keys to standard output\n");
     fprintf(stderr, "  -H [int]    - Height in pixels\n");
     fprintf(stderr, "  -L [int]    - Landscape height in pixels\n");
+    fprintf(stderr, "  -W [int]    - Maximum keyboard width in pixels\n");
     fprintf(stderr, "  -G [int]    - Extra exclusive space above the keyboard in pixels\n");
     fprintf(stderr, "  -R [int]    - Rounding radius in pixels\n");
     fprintf(stderr, "  --fn [font] - Set font (e.g: DejaVu Sans 20)\n");
@@ -791,8 +794,13 @@ show()
     layer_surface = zwlr_layer_shell_v1_get_layer_surface(
         layer_shell, draw_surf.surf, current_output_data, layer, namespace);
 
-    zwlr_layer_surface_v1_set_size(layer_surface, 0, height);
-    zwlr_layer_surface_v1_set_anchor(layer_surface, anchor);
+    zwlr_layer_surface_v1_set_size(layer_surface, keyboard.w, height);
+    uint32_t surface_anchor = anchor;
+    if (keyboard.w < available_width) {
+        surface_anchor &= ~(ZWLR_LAYER_SURFACE_V1_ANCHOR_LEFT |
+                            ZWLR_LAYER_SURFACE_V1_ANCHOR_RIGHT);
+    }
+    zwlr_layer_surface_v1_set_anchor(layer_surface, surface_anchor);
     if (keyboard.exclusive) {
         zwlr_layer_surface_v1_set_exclusive_zone(layer_surface,
                                                   height + exclusive_gap);
@@ -875,6 +883,8 @@ main(int argc, char **argv)
         normal_height = atoi(tmp);
     if ((tmp = getenv("WVKBD_LANDSCAPE_HEIGHT")))
         landscape_height = atoi(tmp);
+    if ((tmp = getenv("WVKBD_WIDTH")))
+        max_width = atoi(tmp);
 
     /* keyboard settings */
     keyboard.layers = (enum layout_id *)&layers;
@@ -1025,6 +1035,13 @@ main(int argc, char **argv)
                 exit(1);
             }
             height = landscape_height = atoi(argv[++i]);
+        } else if ((!strcmp(argv[i], "-W")) ||
+                   (!strcmp(argv[i], "--width"))) {
+            if (i >= argc - 1) {
+                usage(argv[0]);
+                exit(1);
+            }
+            max_width = atoi(argv[++i]);
         } else if ((!strcmp(argv[i], "-G")) ||
                    (!strcmp(argv[i], "--exclusive-gap"))) {
             if (i >= argc - 1) {

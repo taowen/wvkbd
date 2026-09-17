@@ -45,6 +45,10 @@ can be patched to add new features.
 *-L* _pixels_
 	Height of the keyboard in pixels, for horizontal/landscape mode
 
+*-W* _pixels_
+	Maximum keyboard width in pixels. Narrower outputs use their available width;
+	wider outputs center the keyboard along the bottom edge.
+
 *--fn* _font_
 	set font and size (e.g. DejaVu Sans 20)
 
