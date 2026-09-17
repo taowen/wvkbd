@@ -325,6 +325,8 @@ wl_pointer_enter(void *data, struct wl_pointer *wl_pointer, uint32_t serial,
                  struct wl_surface *surface, wl_fixed_t surface_x,
                  wl_fixed_t surface_y)
 {
+	cur_x = wl_fixed_to_int(surface_x);
+	cur_y = wl_fixed_to_int(surface_y);
 }
 
 void
