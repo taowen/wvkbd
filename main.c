@@ -71,6 +71,7 @@ static int cur_x = -1, cur_y = -1;
 static bool cur_press = false;
 static struct kbd keyboard;
 static uint32_t height, normal_height, landscape_height;
+static uint32_t exclusive_gap = 0;
 static int rounding = DEFAULT_ROUNDING;
 static bool hidden = false;
 static bool im_auto = false;
@@ -663,6 +664,7 @@ usage(char *argv0)
             "  -O          - Print intersected keys to standard output\n");
     fprintf(stderr, "  -H [int]    - Height in pixels\n");
     fprintf(stderr, "  -L [int]    - Landscape height in pixels\n");
+    fprintf(stderr, "  -G [int]    - Extra exclusive space above the keyboard in pixels\n");
     fprintf(stderr, "  -R [int]    - Rounding radius in pixels\n");
     fprintf(stderr, "  --fn [font] - Set font (e.g: DejaVu Sans 20)\n");
     fprintf(stderr, "  --hidden    - Start hidden (send SIGUSR2 to show)\n");
@@ -790,7 +792,8 @@ show()
     zwlr_layer_surface_v1_set_size(layer_surface, 0, height);
     zwlr_layer_surface_v1_set_anchor(layer_surface, anchor);
     if (keyboard.exclusive) {
-        zwlr_layer_surface_v1_set_exclusive_zone(layer_surface, height);
+        zwlr_layer_surface_v1_set_exclusive_zone(layer_surface,
+                                                  height + exclusive_gap);
     }
     zwlr_layer_surface_v1_set_keyboard_interactivity(layer_surface, false);
     zwlr_layer_surface_v1_add_listener(layer_surface, &layer_surface_listener,
@@ -1020,6 +1023,13 @@ main(int argc, char **argv)
                 exit(1);
             }
             height = landscape_height = atoi(argv[++i]);
+        } else if ((!strcmp(argv[i], "-G")) ||
+                   (!strcmp(argv[i], "--exclusive-gap"))) {
+            if (i >= argc - 1) {
+                usage(argv[0]);
+                exit(1);
+            }
+            exclusive_gap = atoi(argv[++i]);
         } else if (!strcmp(argv[i], "-R")) {
             if (i >= argc - 1) {
                 usage(argv[0]);
