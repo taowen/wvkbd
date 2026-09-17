@@ -303,7 +303,21 @@ kbd_unpress_key(struct kbd *kb, uint32_t time)
         unlatch_super = (kb->mods & Super) == Super;
         unlatch_altgr = (kb->mods & AltGr) == AltGr;
 
-        if (kb->last_press->type == Copy) {
+        if (kb->last_press->type == Chord) {
+            if (kb->debug) fprintf(stderr, "release chord %d+%d\n",
+                                   kb->last_press->code_mod,
+                                   kb->last_press->code);
+            zwp_virtual_keyboard_v1_key(kb->vkbd, time,
+                                        kb->last_press->code,
+                                        WL_KEYBOARD_KEY_STATE_PRESSED);
+            zwp_virtual_keyboard_v1_key(kb->vkbd, time,
+                                        kb->last_press->code,
+                                        WL_KEYBOARD_KEY_STATE_RELEASED);
+            zwp_virtual_keyboard_v1_key_mods(kb->vkbd, time,
+                                             kb->last_press->code_mod,
+                                             WL_KEYBOARD_KEY_STATE_RELEASED);
+            zwp_virtual_keyboard_v1_modifiers(kb->vkbd, kb->mods, 0, 0, 0);
+        } else if (kb->last_press->type == Copy) {
             if (kb->debug) fprintf(stderr, "release copy key (unlatch_shift=%d, mods=%d)\n", unlatch_shift, kb->mods);
             zwp_virtual_keyboard_v1_key(kb->vkbd, time, 127, // COMP key
                                         WL_KEYBOARD_KEY_STATE_RELEASED);
@@ -427,6 +441,14 @@ kbd_press_key(struct kbd *kb, struct key *k, uint32_t time)
     }
 
     switch (k->type) {
+    case Chord:
+        zwp_virtual_keyboard_v1_key_mods(kb->vkbd, time, k->code_mod,
+                                         WL_KEYBOARD_KEY_STATE_PRESSED);
+        zwp_virtual_keyboard_v1_modifiers(kb->vkbd,
+            k->reset_mod ? k->code_mod : kb->mods ^ k->code_mod, 0, 0, 0);
+        kb->last_swipe = kb->last_press = k;
+        kbd_draw_key(kb, k, Press);
+        break;
     case Code:
         if (k->code_mod) {
             zwp_virtual_keyboard_v1_key_mods(kb->vkbd, time, k->code_mod, WL_KEYBOARD_KEY_STATE_PRESSED);

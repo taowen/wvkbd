@@ -15,6 +15,7 @@ struct kbd;
 enum key_type {
 	Pad = 0, // Padding, not a pressable key
 	Code,    // A normal key emitting a keycode
+	Chord,   // A key emitted on release after its modifier was pressed
 	Mod,     // A modifier key
 	Copy,    // Copy key, copies the unicode value specified in code (creates and
 	         // activates temporary keymap)
