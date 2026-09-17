@@ -233,11 +233,13 @@ static struct key keys_full[] = {
   {"⌫", "⌫", 1.5, Code, KEY_BACKSPACE, .scheme = 1},
   {"", "", 0.0, EndRow},
 
-  {"⌨", "⌨", 1.5, NextLayer, .scheme = 1},
+  {"Tab", "Tab", 1.0, Code, KEY_TAB, .scheme = 1},
+  {"⌨", "⌨", 1.0, NextLayer, .scheme = 1},
   {"中/En", "中/En", 1.0, Chord, KEY_SPACE, .code_mod = Ctrl, .reset_mod = true, .scheme = 1},
-  {",", "'", 1.0, Code, KEY_COMMA, &layouts[ComposeMath]},
-  {"", "Tab", 4.0, Code, KEY_SPACE},
-  {".", "?", 1.0, Code, KEY_DOT, &layouts[ComposePunctuation]},
+  {",", "<", 1.0, Code, KEY_COMMA, &layouts[ComposeMath]},
+  {"", "", 3.5, Code, KEY_SPACE},
+  {".", ">", 1.0, Code, KEY_DOT, &layouts[ComposePunctuation]},
+  {"/", "?", 1.0, Code, KEY_SLASH},
   {"Enter", "Enter", 1.5, Code, KEY_ENTER, .scheme = 1},
 
   /* end of layout */
@@ -1138,11 +1140,13 @@ static struct key keys_landscape[] = {
   {"⌫", "⌫", 1.5, Code, KEY_BACKSPACE, .scheme = 1},
   {"", "", 0.0, EndRow},
 
-  {"⌨", "⌨", 1.5, NextLayer, .scheme = 1},
+  {"Tab", "Tab", 1.0, Code, KEY_TAB, .scheme = 1},
+  {"⌨", "⌨", 1.0, NextLayer, .scheme = 1},
   {"中/En", "中/En", 1.0, Chord, KEY_SPACE, .code_mod = Ctrl, .reset_mod = true, .scheme = 1},
-  {",", "'", 1.0, Code, KEY_COMMA, &layouts[ComposeMath]},
-  {"", "Tab", 4.0, Code, KEY_SPACE},
-  {".", "?", 1.0, Code, KEY_DOT, &layouts[ComposePunctuation]},
+  {",", "<", 1.0, Code, KEY_COMMA, &layouts[ComposeMath]},
+  {"", "", 3.5, Code, KEY_SPACE},
+  {".", ">", 1.0, Code, KEY_DOT, &layouts[ComposePunctuation]},
+  {"/", "?", 1.0, Code, KEY_SLASH},
   {"Enter", "Enter", 1.5, Code, KEY_ENTER, .scheme = 1},
 
   /* end of layout */
